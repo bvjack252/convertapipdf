@@ -1,4 +1,3 @@
-import FormData from "form-data";
 import { ConversionRequest, HtmlToPdfRequest, OcrRequest } from "@shared/schema";
 
 // Gotenberg API client
@@ -20,7 +19,8 @@ export class GotenbergService {
     options?: ConversionRequest["options"]
   ): Promise<Buffer> {
     const form = new FormData();
-    form.append("files", fileBuffer, fileName);
+    const blob = new Blob([fileBuffer]);
+    form.append("files", blob, fileName);
 
     // Add options if provided
     if (options?.paperSize) {
@@ -39,8 +39,7 @@ export class GotenbergService {
 
     const response = await fetch(`${this.baseUrl}/forms/libreoffice/convert`, {
       method: "POST",
-      body: form as any,
-      headers: form.getHeaders(),
+      body: form,
     });
 
     if (!response.ok) {
@@ -78,7 +77,8 @@ export class GotenbergService {
 
     if (request.html) {
       // Convert HTML content to PDF
-      form.append("files", Buffer.from(request.html), "index.html");
+      const blob = new Blob([request.html]);
+      form.append("files", blob, "index.html");
     } else if (request.url) {
       // Convert URL to PDF
       form.append("url", request.url);
@@ -112,8 +112,7 @@ export class GotenbergService {
 
     const response = await fetch(endpoint, {
       method: "POST",
-      body: form as any,
-      headers: form.getHeaders(),
+      body: form,
     });
 
     if (!response.ok) {
@@ -132,7 +131,8 @@ export class GotenbergService {
     options?: HtmlToPdfRequest["options"]
   ): Promise<Buffer> {
     const form = new FormData();
-    form.append("files", Buffer.from(markdownContent), "index.md");
+    const blob = new Blob([markdownContent]);
+    form.append("files", blob, "index.md");
 
     // Add options
     if (options?.paperSize) {
@@ -152,8 +152,7 @@ export class GotenbergService {
 
     const response = await fetch(`${this.baseUrl}/forms/chromium/convert/markdown`, {
       method: "POST",
-      body: form as any,
-      headers: form.getHeaders(),
+      body: form,
     });
 
     if (!response.ok) {
@@ -172,13 +171,13 @@ export class GotenbergService {
 
     pdfBuffers.forEach((buffer, index) => {
       const fileName = fileNames[index] || `file${index + 1}.pdf`;
-      form.append("files", buffer, fileName);
+      const blob = new Blob([buffer]);
+      form.append("files", blob, fileName);
     });
 
     const response = await fetch(`${this.baseUrl}/forms/pdfengines/merge`, {
       method: "POST",
-      body: form as any,
-      headers: form.getHeaders(),
+      body: form,
     });
 
     if (!response.ok) {
@@ -194,13 +193,13 @@ export class GotenbergService {
    */
   async convertToPdfA(pdfBuffer: Buffer, fileName: string): Promise<Buffer> {
     const form = new FormData();
-    form.append("files", pdfBuffer, fileName);
+    const blob = new Blob([pdfBuffer]);
+    form.append("files", blob, fileName);
     form.append("pdfa", "PDF/A-2b");
 
     const response = await fetch(`${this.baseUrl}/forms/pdfengines/convert`, {
       method: "POST",
-      body: form as any,
-      headers: form.getHeaders(),
+      body: form,
     });
 
     if (!response.ok) {

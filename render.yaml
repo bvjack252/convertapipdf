@@ -29,7 +29,7 @@ services:
         fromService:
           type: web
           name: gotenberg
-          property: hostport
+          property: url
     healthCheckPath: /ping
     autoDeploy: true
     routes:
