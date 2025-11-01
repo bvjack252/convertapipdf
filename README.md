@@ -2,6 +2,14 @@
 
 A comprehensive, production-ready REST API for document conversions powered by Gotenberg. Convert between PDF, Word, Excel, PowerPoint, images, and web formats with professional quality.
 
+## 🌐 Live API
+
+**Production URL**: `https://convertapipdf.onrender.com`  
+**API Base**: `https://convertapipdf.onrender.com/api`  
+**Documentation**: [View API Docs](https://convertapipdf.onrender.com/api-docs)
+
+**Note**: The free tier deployment may take 30-60 seconds to wake up after inactivity. Consider using [UptimeRobot](https://uptimerobot.com) to keep it active 24/7 (see [DEPLOYMENT.md](DEPLOYMENT.md)).
+
 ## ✨ Features
 
 ### 📝 Office ↔ PDF Conversions
@@ -146,7 +154,7 @@ No credit card required for free tier!
 const formData = new FormData();
 formData.append('file', wordFile);
 
-const response = await fetch('https://your-api.com/api/convert/docx-to-pdf', {
+const response = await fetch('https://convertapipdf.onrender.com/api/convert/docx-to-pdf', {
   method: 'POST',
   body: formData
 });
@@ -162,7 +170,7 @@ import requests
 # Convert Excel to PDF
 files = {'file': open('spreadsheet.xlsx', 'rb')}
 response = requests.post(
-    'https://your-api.com/api/convert/xlsx-to-pdf',
+    'https://convertapipdf.onrender.com/api/convert/xlsx-to-pdf',
     files=files
 )
 
@@ -174,24 +182,24 @@ with open('output.pdf', 'wb') as f:
 
 ```bash
 # Convert PowerPoint to PDF
-curl -X POST https://your-api.com/api/convert/pptx-to-pdf \
+curl -X POST https://convertapipdf.onrender.com/api/convert/pptx-to-pdf \
   -F "file=@presentation.pptx" \
   -o output.pdf
 
 # Merge PDFs
-curl -X POST https://your-api.com/api/pdf/merge \
+curl -X POST https://convertapipdf.onrender.com/api/pdf/merge \
   -F "files=@file1.pdf" \
   -F "files=@file2.pdf" \
   -o merged.pdf
 
 # HTML to PDF
-curl -X POST https://your-api.com/api/convert/html-to-pdf \
+curl -X POST https://convertapipdf.onrender.com/api/convert/html-to-pdf \
   -H "Content-Type: application/json" \
   -d '{"html": "<h1>Hello World</h1>"}' \
   -o output.pdf
 
 # URL to PDF
-curl -X POST https://your-api.com/api/convert/url-to-pdf \
+curl -X POST https://convertapipdf.onrender.com/api/convert/url-to-pdf \
   -H "Content-Type: application/json" \
   -d '{"url": "https://example.com"}' \
   -o webpage.pdf
@@ -202,7 +210,7 @@ curl -X POST https://your-api.com/api/convert/url-to-pdf \
 ```php
 <?php
 // Convert Word to PDF
-$ch = curl_init('https://your-api.com/api/convert/docx-to-pdf');
+$ch = curl_init('https://convertapipdf.onrender.com/api/convert/docx-to-pdf');
 $cfile = new CURLFile('document.docx', 'application/vnd.openxmlformats-officedocument.wordprocessingml.document', 'document.docx');
 $data = array('file' => $cfile);
 
@@ -230,27 +238,81 @@ MAX_FILE_SIZE=104857600
 API_TIMEOUT=120000
 ```
 
-### Advanced Options
+### Advanced Office to PDF Options
 
-All conversion endpoints support optional parameters:
+All Office to PDF endpoints support comprehensive options for professional-quality output:
 
 ```javascript
+// Example with all available options
+const formData = new FormData();
+formData.append('file', excelFile);
+
 const options = {
-  quality: 'high',           // 'high', 'medium', 'low'
-  pageRange: '1-5',          // Specific pages
-  orientation: 'landscape',  // 'portrait', 'landscape'
-  paperSize: 'A4',          // 'A4', 'Letter', 'Legal', 'A3'
-  margins: {
-    top: 10,
-    bottom: 10,
-    left: 10,
-    right: 10
-  },
-  compress: true,
-  ocr: false
+  // Page Settings
+  paperSize: 'A4',                    // 'A4', 'Letter', 'Legal', 'A3'
+  orientation: 'landscape',           // 'portrait', 'landscape'
+  nativePageRanges: '1-5',           // Specific pages (e.g., '1-5' or '1,3,5')
+  
+  // Image Quality (great for documents with images)
+  losslessImageCompression: false,    // true = keep original quality, false = compress
+  imageQuality: 85,                   // 1-100 (JPEG quality when lossless = false)
+  reduceImageResolution: true,        // Reduce image DPI to decrease file size
+  maxImageResolution: '300',          // '75', '150', '300', '600', '1200' DPI
+  
+  // Excel-Specific Options (fixes column cutoffs & empty pages!)
+  singlePageSheets: true,             // Fit each Excel sheet on one PDF page
+  
+  // Other Options
+  exportFormFields: true              // Include PDF form fields
 };
 
 formData.append('options', JSON.stringify(options));
+
+const response = await fetch('https://convertapipdf.onrender.com/api/convert/xlsx-to-pdf', {
+  method: 'POST',
+  body: formData
+});
+```
+
+#### Image Quality Presets
+
+**Smallest file size (low quality):**
+```javascript
+{
+  losslessImageCompression: false,
+  imageQuality: 30,
+  reduceImageResolution: true,
+  maxImageResolution: '75'
+}
+```
+
+**Balanced (recommended):**
+```javascript
+{
+  losslessImageCompression: false,
+  imageQuality: 70,
+  reduceImageResolution: true,
+  maxImageResolution: '150'
+}
+```
+
+**Highest quality (large file):**
+```javascript
+{
+  losslessImageCompression: true,
+  reduceImageResolution: false
+}
+```
+
+#### Excel Conversion Tips
+
+If you're experiencing issues with Excel files (empty pages, cut-off columns), use:
+```javascript
+{
+  singlePageSheets: true,       // Fits each sheet on one page
+  orientation: 'landscape',      // Better for wide spreadsheets
+  paperSize: 'A3'               // Larger paper size
+}
 ```
 
 ## 🏢 Production Deployment

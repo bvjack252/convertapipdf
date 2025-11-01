@@ -52,6 +52,15 @@ export const conversionRequestSchema = z.object({
     }).optional(),
     compress: z.boolean().optional(),
     ocr: z.boolean().optional(),
+    
+    // Advanced Office to PDF options (Gotenberg LibreOffice)
+    losslessImageCompression: z.boolean().optional(),
+    imageQuality: z.number().min(1).max(100).optional(), // JPEG quality 1-100
+    reduceImageResolution: z.boolean().optional(),
+    maxImageResolution: z.enum(["75", "150", "300", "600", "1200"]).optional(), // DPI
+    singlePageSheets: z.boolean().optional(), // Excel: fit each sheet on one page
+    exportFormFields: z.boolean().optional(), // Export PDF form fields
+    nativePageRanges: z.string().optional(), // LibreOffice page ranges
   }).optional(),
 });
 

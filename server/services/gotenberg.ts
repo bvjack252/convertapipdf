@@ -22,7 +22,7 @@ export class GotenbergService {
     const blob = new Blob([fileBuffer]);
     form.append("files", blob, fileName);
 
-    // Add options if provided
+    // Add basic options if provided
     if (options?.paperSize) {
       form.append("paperWidth", this.getPaperDimensions(options.paperSize).width);
       form.append("paperHeight", this.getPaperDimensions(options.paperSize).height);
@@ -35,6 +35,33 @@ export class GotenbergService {
       form.append("marginBottom", options.margins.bottom?.toString() || "0");
       form.append("marginLeft", options.margins.left?.toString() || "0");
       form.append("marginRight", options.margins.right?.toString() || "0");
+    }
+
+    // Add advanced image quality options
+    if (options?.losslessImageCompression !== undefined) {
+      form.append("losslessImageCompression", options.losslessImageCompression.toString());
+    }
+    if (options?.imageQuality !== undefined) {
+      form.append("quality", options.imageQuality.toString());
+    }
+    if (options?.reduceImageResolution !== undefined) {
+      form.append("reduceImageResolution", options.reduceImageResolution.toString());
+    }
+    if (options?.maxImageResolution) {
+      form.append("maxImageResolution", options.maxImageResolution);
+    }
+
+    // Add Excel-specific options
+    if (options?.singlePageSheets !== undefined) {
+      form.append("singlePageSheets", options.singlePageSheets.toString());
+    }
+    if (options?.exportFormFields !== undefined) {
+      form.append("exportFormFields", options.exportFormFields.toString());
+    }
+
+    // Add page range option
+    if (options?.nativePageRanges) {
+      form.append("nativePageRanges", options.nativePageRanges);
     }
 
     const response = await fetch(`${this.baseUrl}/forms/libreoffice/convert`, {
