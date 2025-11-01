@@ -1,0 +1,38 @@
+# Render.com deployment configuration
+# One-click deploy your PDF conversion API
+
+services:
+  # Gotenberg service for document conversions
+  - type: web
+    name: gotenberg
+    runtime: image
+    image:
+      url: gotenberg/gotenberg:8
+    plan: free
+    envVars:
+      - key: GOTENBERG_API_TIMEOUT
+        value: "120s"
+    healthCheckPath: /health
+    autoDeploy: true
+
+  # Main PDF conversion API
+  - type: web
+    name: pdf-conversion-api
+    runtime: node
+    plan: free
+    buildCommand: npm ci && npm run build
+    startCommand: npm run start
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: GOTENBERG_URL
+        fromService:
+          type: web
+          name: gotenberg
+          property: hostport
+    healthCheckPath: /ping
+    autoDeploy: true
+    routes:
+      - type: rewrite
+        source: /*
+        destination: /
